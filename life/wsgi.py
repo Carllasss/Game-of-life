@@ -1,5 +1,5 @@
 """
-WSGI config for life project.
+WSGI config.py for life project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

@@ -1,7 +1,13 @@
+from collections import defaultdict
 from random import random
 
+from django.db import transaction
+
+import config
 from .models import Cells
-from collections import defaultdict
+
+width = config.WIDTH - 1
+height = config.HEIGHT - 1
 
 
 def get_neighbours(x: int, y: int):
@@ -9,12 +15,14 @@ def get_neighbours(x: int, y: int):
                (1, 0), (-1, 1), (0, 1), (1, 1)]
     alive = []
     possible_neighbours = {(x + x_add, y + y_add) for x_add, y_add in offsets}
-    for i in possible_neighbours:
-        if Cells.objects.filter(x=i[0], y=i[1]):
-            alive.append((i[0], i[1]))
+    with transaction.atomic():
+        for i in possible_neighbours:
+            if Cells.objects.filter(x=i[0], y=i[1]):
+                alive.append((i[0], i[1]))
     return possible_neighbours, alive
 
 
+@transaction.atomic
 def upgrade_grid():
     grid = []
     try:
@@ -22,9 +30,9 @@ def upgrade_grid():
     except Cells.MultipleObjectsReturned:
         pass
     except Cells.DoesNotExist:
-        for row in range(49):
+        for row in range(height):
             grid.append([])
-            for column in range(49):
+            for column in range(width):
                 grid[row].append(1 if random() < 15 / 100 else 0)
         j = 0
         for x in grid:
@@ -48,9 +56,9 @@ def upgrade_grid():
         x = pos[0]
         y = pos[1]
         if x == -1:
-            x = 49
+            x = height
         if y == -1:
-            y = 49
+            y = width
         if not Cells.objects.filter(x=x, y=y):
             cell = Cells(x=x, y=y)
             cell.save()

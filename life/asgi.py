@@ -1,5 +1,5 @@
 """
-ASGI config for life project.
+ASGI config.py for life project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
